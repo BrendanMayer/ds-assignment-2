@@ -6,6 +6,9 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
 import * as sqs from 'aws-cdk-lib/aws-sqs'
 import * as s3n from 'aws-cdk-lib/aws-s3-notifications'
 import * as iam from 'aws-cdk-lib/aws-iam'
+import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs'
+import * as node from 'aws-cdk-lib/aws-lambda'
+import * as eventsources from 'aws-cdk-lib/aws-lambda-event-sources'
 
 export class DsAssignment2Stack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -39,10 +42,17 @@ export class DsAssignment2Stack extends Stack {
       principals: [new iam.ServicePrincipal('s3.amazonaws.com')],
       actions: ['sqs:SendMessage'],
       resources: [uploadsQueue.queueArn],
-      conditions: {
-        ArnEquals: { 'aws:SourceArn': bucket.bucketArn }
-      }
+      conditions: { ArnEquals: { 'aws:SourceArn': bucket.bucketArn } }
     }))
+
+    const logImage = new lambda.NodejsFunction(this, 'LogImageFn', {
+      runtime: node.Runtime.NODEJS_20_X,
+      entry: 'lambdas/log-image.ts',
+      handler: 'handler',
+      environment: { TABLE_NAME: table.tableName }
+    })
+    table.grantWriteData(logImage)
+    logImage.addEventSource(new eventsources.SqsEventSource(uploadsQueue, { batchSize: 1 }))
 
     new CfnOutput(this, 'BucketName', { value: bucket.bucketName })
     new CfnOutput(this, 'TableName', { value: table.tableName })
