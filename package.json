@@ -1,0 +1,28 @@
+{
+  "name": "ds-assignment-2",
+  "version": "1.0.0",
+  "bin": {
+    "ds-assignment-2": "bin/ds-assignment-2.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.637.0",
+    "@aws-sdk/client-s3": "^3.637.0",
+    "@aws-sdk/client-sns": "^3.637.0",
+    "@aws-sdk/lib-dynamodb": "^3.637.0",
+    "aws-cdk-lib": "^2.146.0",
+    "constructs": "^10.3.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.21.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
