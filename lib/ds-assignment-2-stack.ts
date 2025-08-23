@@ -54,6 +54,15 @@ export class DsAssignment2Stack extends Stack {
     table.grantWriteData(logImage)
     logImage.addEventSource(new eventsources.SqsEventSource(uploadsQueue, { batchSize: 1 }))
 
+    const removeImage = new lambda.NodejsFunction(this, 'RemoveImageFn', {
+      runtime: node.Runtime.NODEJS_20_X,
+      entry: 'lambdas/remove-image.ts',
+      handler: 'handler',
+      environment: { BUCKET_NAME: bucket.bucketName }
+    })
+    bucket.grantDelete(removeImage)
+    removeImage.addEventSource(new eventsources.SqsEventSource(dlq, { batchSize: 1 }))
+
     new CfnOutput(this, 'BucketName', { value: bucket.bucketName })
     new CfnOutput(this, 'TableName', { value: table.tableName })
     new CfnOutput(this, 'UploadsQueueUrl', { value: uploadsQueue.queueUrl })
