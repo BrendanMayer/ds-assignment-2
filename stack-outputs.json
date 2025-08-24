@@ -3,7 +3,9 @@
     "TableName": "DsAssignment2Stack-ImagesTable39278AD9-1SPXWJZEKLHWR",
     "AppTopicArn": "arn:aws:sns:eu-west-1:124613588036:DsAssignment2Stack-AppTopic115EA044-25Zv009WCd7b",
     "BucketName": "dsassignment2stack-photosbucket2ac9d1f0-uv181gl1qos4",
+    "ToEmail": "brendan.mayer1234@gmail.com",
     "UploadsQueueUrl": "https://sqs.eu-west-1.amazonaws.com/124613588036/DsAssignment2Stack-UploadsQueue02370CE5-PcbxF1sTz1Ki",
+    "FromEmail": "brendan.mayer1234@gmail.com",
     "InvalidUploadsDLQUrl": "https://sqs.eu-west-1.amazonaws.com/124613588036/DsAssignment2Stack-InvalidUploadsDLQ9A41D34A-BKPvRZE5DPhy"
   }
 }

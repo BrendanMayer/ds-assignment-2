@@ -20,3 +20,8 @@ I made an SNS topic and the Add Metadata Lambda. It updates DynamoDB items with 
 ### Commit - 6
 I built the Update Status Lambda for moderators. It updates the DynamoDB item with Pass or Reject decisions and reason. Added filter so only status messages go here.
 ![alt text](images/commit6.png)
+
+### Commit - 7
+I made the Confirmation Mailer Lambda using SES. It sends an email to the photographer when the moderator updates a photo’s status.
+![alt text](images/commit7.png)
+![alt text](images/commit7_2.png)

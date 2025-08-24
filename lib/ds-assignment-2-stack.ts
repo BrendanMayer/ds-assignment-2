@@ -97,10 +97,34 @@ export class DsAssignment2Stack extends Stack {
       }
     }))
 
+    const toEmail = this.node.tryGetContext('toEmail') || 'you@example.com'
+    const fromEmail = this.node.tryGetContext('fromEmail') || 'noreply@example.com'
+    const mailer = new lambda.NodejsFunction(this, 'ConfirmationMailerFn', {
+      runtime: node.Runtime.NODEJS_20_X,
+      entry: 'lambdas/confirmation-mailer.ts',
+      handler: 'handler',
+      environment: { TO_EMAIL: toEmail, FROM_EMAIL: fromEmail }
+    })
+    mailer.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['ses:SendEmail','ses:SendRawEmail'],
+      resources: ['*']
+    }))
+    appTopic.addSubscription(new subs.LambdaSubscription(mailer, {
+      filterPolicyWithMessageBody: {
+        update: sns.FilterOrPolicy.policy({
+          status: sns.FilterOrPolicy.filter(
+            sns.SubscriptionFilter.stringFilter({ allowlist: ['Pass','Reject'] })
+          )
+        })
+      }
+    }))
+
     new CfnOutput(this, 'BucketName', { value: bucket.bucketName })
     new CfnOutput(this, 'TableName', { value: table.tableName })
     new CfnOutput(this, 'UploadsQueueUrl', { value: uploadsQueue.queueUrl })
     new CfnOutput(this, 'InvalidUploadsDLQUrl', { value: dlq.queueUrl })
     new CfnOutput(this, 'AppTopicArn', { value: appTopic.topicArn })
+    new CfnOutput(this, 'ToEmail', { value: toEmail })
+    new CfnOutput(this, 'FromEmail', { value: fromEmail })
   }
 }
