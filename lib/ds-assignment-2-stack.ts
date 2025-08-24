@@ -65,9 +65,7 @@ export class DsAssignment2Stack extends Stack {
     bucket.grantDelete(removeImage)
     removeImage.addEventSource(new eventsources.SqsEventSource(dlq, { batchSize: 1 }))
 
-    const appTopic = new sns.Topic(this, 'AppTopic', {
-      displayName: 'PhotoAppTopic'
-    })
+    const appTopic = new sns.Topic(this, 'AppTopic', { displayName: 'PhotoAppTopic' })
 
     const addMetadata = new lambda.NodejsFunction(this, 'AddMetadataFn', {
       runtime: node.Runtime.NODEJS_20_X,
@@ -76,10 +74,26 @@ export class DsAssignment2Stack extends Stack {
       environment: { TABLE_NAME: table.tableName }
     })
     table.grantReadWriteData(addMetadata)
-
     appTopic.addSubscription(new subs.LambdaSubscription(addMetadata, {
       filterPolicy: {
-        metadata_type: sns.SubscriptionFilter.stringFilter({ allowlist: ['Caption', 'Date', 'name'] })
+        metadata_type: sns.SubscriptionFilter.stringFilter({ allowlist: ['Caption','Date','name'] })
+      }
+    }))
+
+    const updateStatus = new lambda.NodejsFunction(this, 'UpdateStatusFn', {
+      runtime: node.Runtime.NODEJS_20_X,
+      entry: 'lambdas/update-status.ts',
+      handler: 'handler',
+      environment: { TABLE_NAME: table.tableName }
+    })
+    table.grantReadWriteData(updateStatus)
+    appTopic.addSubscription(new subs.LambdaSubscription(updateStatus, {
+      filterPolicyWithMessageBody: {
+        update: sns.FilterOrPolicy.policy({
+          status: sns.FilterOrPolicy.filter(
+            sns.SubscriptionFilter.stringFilter({ allowlist: ['Pass','Reject'] })
+          )
+        })
       }
     }))
 

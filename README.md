@@ -16,3 +16,7 @@ I added the Remove Image Lambda that listens to the DLQ and deletes invalid file
 ### Commit - 5
 I made an SNS topic and the Add Metadata Lambda. It updates DynamoDB items with caption, date, and photographer name. Added filter so only metadata messages go here.
 ![alt text](images/commit5.png)
+
+### Commit - 6
+I built the Update Status Lambda for moderators. It updates the DynamoDB item with Pass or Reject decisions and reason. Added filter so only status messages go here.
+![alt text](images/commit6.png)
