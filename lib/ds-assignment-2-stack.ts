@@ -9,6 +9,8 @@ import * as iam from 'aws-cdk-lib/aws-iam'
 import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as node from 'aws-cdk-lib/aws-lambda'
 import * as eventsources from 'aws-cdk-lib/aws-lambda-event-sources'
+import * as sns from 'aws-cdk-lib/aws-sns'
+import * as subs from 'aws-cdk-lib/aws-sns-subscriptions'
 
 export class DsAssignment2Stack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -63,9 +65,28 @@ export class DsAssignment2Stack extends Stack {
     bucket.grantDelete(removeImage)
     removeImage.addEventSource(new eventsources.SqsEventSource(dlq, { batchSize: 1 }))
 
+    const appTopic = new sns.Topic(this, 'AppTopic', {
+      displayName: 'PhotoAppTopic'
+    })
+
+    const addMetadata = new lambda.NodejsFunction(this, 'AddMetadataFn', {
+      runtime: node.Runtime.NODEJS_20_X,
+      entry: 'lambdas/add-metadata.ts',
+      handler: 'handler',
+      environment: { TABLE_NAME: table.tableName }
+    })
+    table.grantReadWriteData(addMetadata)
+
+    appTopic.addSubscription(new subs.LambdaSubscription(addMetadata, {
+      filterPolicy: {
+        metadata_type: sns.SubscriptionFilter.stringFilter({ allowlist: ['Caption', 'Date', 'name'] })
+      }
+    }))
+
     new CfnOutput(this, 'BucketName', { value: bucket.bucketName })
     new CfnOutput(this, 'TableName', { value: table.tableName })
     new CfnOutput(this, 'UploadsQueueUrl', { value: uploadsQueue.queueUrl })
     new CfnOutput(this, 'InvalidUploadsDLQUrl', { value: dlq.queueUrl })
+    new CfnOutput(this, 'AppTopicArn', { value: appTopic.topicArn })
   }
 }

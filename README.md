@@ -12,3 +12,7 @@ I created the Log Image Lambda that reads from the queue, checks file types, and
 ### Commit - 4
 I added the Remove Image Lambda that listens to the DLQ and deletes invalid files from S3. I tested this by uploading a .txt file
 ![alt text](images/commit4.png)
+
+### Commit - 5
+I made an SNS topic and the Add Metadata Lambda. It updates DynamoDB items with caption, date, and photographer name. Added filter so only metadata messages go here.
+![alt text](images/commit5.png)
