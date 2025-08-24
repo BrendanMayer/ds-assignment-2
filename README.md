@@ -25,3 +25,15 @@ I built the Update Status Lambda for moderators. It updates the DynamoDB item wi
 I made the Confirmation Mailer Lambda using SES. It sends an email to the photographer when the moderator updates a photo’s status.
 ![alt text](images/commit7.png)
 ![alt text](images/commit7_2.png)
+
+### Commit - 8
+I added CLI JSON files for metadata and moderator messages and tested message filtering through SNS.
+
+## features
+- photographer log new images: s3->sqs->lambda writes to dynamodb
+- metadata updating: sns topic with add-metadata lambda
+- invalid image removal: dlq polled by remove-image lambda deletes from bucket
+- moderator status updating: sns to update-status lambda writes status and reason
+- status update mailer: confirmation-mailer via ses
+- filtering: single topic with subscription filters so metadata messages do not reach status or mailer subscribers
+- messaging: sns for app messages, sqs for uploads
